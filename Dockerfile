@@ -28,7 +28,7 @@ RUN cd / && \
     cd /home/nethack/ && \
     chown -R games:games ./nh367/ && \
     sed -i -e 's/343/367/g' -e 's|chroot_path = "/opt/nethack/nethack.alt.org/"|chroot_path = "/home/nethack/"|' -e 's|"$SERVERID" = "$ATTR(14)nethack.alt.org - http://nethack.alt.org/$ATTR()"|"$SERVERID" = "$ATTR(14)4nm1tsu.com$ATTR()"|' -e 's|# menu_max_idle_time = 1024|menu_max_idle_time = 1024|' -e 's|game_name = "NetHack 3.4.3"|game_name = "NetHack 3.6.7"|' ./etc/dgamelaunch.conf && \
-    cp /lib/x86_64-linux-gnu/libncurses.so.6 lib && \
+    cp /lib/aarch64-linux-gnu/libncurses.so.6 lib && \
     (echo "service telnet" && \
         echo "{" && \
         echo "  socket_type = stream" && \
