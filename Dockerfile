@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
 # NetHackのダウンロードと設定
 RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
     tar zxvf nethack-367-src.tgz && \
-    cd NetHack-3.6.7/sys/unix && \
+    cd NetHack-3.6.7/include && \
+    sed -i 's|#define ENTRYMAX 100|#define ENTRYMAX 1000|' config.h && \
+    cd ../sys/unix && \
     sed -i -e 's|PREFIX=$(wildcard ~)/nh/install|PREFIX=|' -e 's|HACKDIR=$(PREFIX)/games/lib/$(GAME)dir|HACKDIR=$(PREFIX)/nh367|' -e 's|SHELLDIR = $(PREFIX)/games|#SHELLDIR = $(PREFIX)/games|' hints/linux && \
     sh setup.sh hints/linux && \
     cd ../../ && \
