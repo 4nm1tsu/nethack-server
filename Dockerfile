@@ -1,5 +1,7 @@
 FROM debian:latest
 
+ARG TARGETPLATFORM
+
 # 必要なパッケージをインストール
 RUN apt-get update && apt-get install -y \
     wget build-essential bison flex libncurses-dev gzip nkf groff git autogen autoconf automake \
@@ -18,7 +20,14 @@ RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
     make install
 
 # dgamelaunchのセットアップ
-RUN cd / && \
+
+RUN PLATFORM=$( \
+      case ${TARGETPLATFORM} in \
+        linux/amd64 ) echo "x86_64";; \
+        linux/arm64 ) echo "aarch64";; \
+      esac \
+    ) && \
+    cd / && \
     git clone https://github.com/paxed/dgamelaunch.git && \
     cd dgamelaunch && \
     ./autogen.sh --enable-sqlite --enable-shmem --with-config-file=/home/nethack/etc/dgamelaunch.conf && \
@@ -30,7 +39,7 @@ RUN cd / && \
     cd /home/nethack/ && \
     chown -R games:games ./nh367/ && \
     sed -i -e 's/343/367/g' -e 's|chroot_path = "/opt/nethack/nethack.alt.org/"|chroot_path = "/home/nethack/"|' -e 's|"$SERVERID" = "$ATTR(14)nethack.alt.org - http://nethack.alt.org/$ATTR()"|"$SERVERID" = "$ATTR(14)4nm1tsu.com$ATTR()"|' -e 's|# menu_max_idle_time = 1024|menu_max_idle_time = 1024|' -e 's|game_name = "NetHack 3.4.3"|game_name = "NetHack 3.6.7"|' ./etc/dgamelaunch.conf && \
-    cp /lib/aarch64-linux-gnu/libncurses.so.6 lib && \
+    cp /lib/${PLATFORM}-linux-gnu/libncurses.so.6 lib && \
     (echo "service telnet" && \
         echo "{" && \
         echo "  socket_type = stream" && \
