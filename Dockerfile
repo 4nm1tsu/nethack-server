@@ -5,7 +5,7 @@ ARG TARGETPLATFORM
 # 必要なパッケージをインストール
 RUN apt-get update && apt-get install -y \
     wget build-essential bison flex libncurses-dev gzip nkf groff git autogen autoconf automake \
-    libsqlite3-dev sqlite3 xinetd telnetd-ssl bsdmainutils
+    libsqlite3-dev sqlite3 xinetd telnetd-ssl bsdmainutils rsync
 
 # NetHackのダウンロードと設定
 RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
