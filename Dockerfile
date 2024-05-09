@@ -16,7 +16,7 @@ RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
     sed -i -e 's|PREFIX=$(wildcard ~)/nh/install|PREFIX=|' -e 's|HACKDIR=$(PREFIX)/games/lib/$(GAME)dir|HACKDIR=$(PREFIX)/nh367|' -e 's|SHELLDIR = $(PREFIX)/games|#SHELLDIR = $(PREFIX)/games|' hints/linux && \
     sh setup.sh hints/linux && \
     cd ../../ && \
-    make all && \
+    make -B all && \
     make install
 
 # dgamelaunchのセットアップ
@@ -31,7 +31,7 @@ RUN PLATFORM=$( \
     git clone https://github.com/paxed/dgamelaunch.git && \
     cd dgamelaunch && \
     ./autogen.sh --enable-sqlite --enable-shmem --with-config-file=/home/nethack/etc/dgamelaunch.conf && \
-    make && \
+    make -B && \
     sed -i -e 's|CHROOT="/opt/nethack/nethack.alt.org/"|CHROOT="/home/nethack/"|' -e 's|NHSUBDIR="/nh343/"|NHSUBDIR="/nh367/"|' -e 's|NH_VAR_PLAYGROUND="/nh343/var/"|NH_VAR_PLAYGROUND="/nh367/var/"|' -e 's|#NH_PLAYGROUND_FIXED="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/"|NH_PLAYGROUND_FIXED="/home/nethack-compiled/nh367"|' -e 's|mkdir -p "$CHROOT/dgldir/inprogress-nh343"|mkdir -p "$CHROOT/dgldir/inprogress-nh367"|' -e 's|chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh343"|chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh367"|' -e 's|cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh343"|cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh367"|' -e 's|chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh343|chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh367|' ./dgl-create-chroot && \
     ./dgl-create-chroot && \
     mv /home/nethack/nh367/var/ /home/nethack/ && \
