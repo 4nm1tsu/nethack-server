@@ -21,4 +21,6 @@ jobs:
         with:
           platforms: linux/arm64,linux/amd64
           push: true
-          tags: 4nm1tsu/nethack-server:${{ github.sha }}
+          tags: |
+            4nm1tsu/nethack-server:${{ github.sha }}
+            4nm1tsu/nethack-server:latest
