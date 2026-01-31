@@ -30,6 +30,7 @@ RUN PLATFORM=$( \
     cd / && \
     git clone https://github.com/paxed/dgamelaunch.git && \
     cd dgamelaunch && \
+    sed -i '1i #define _XOPEN_SOURCE_EXTENDED 1' ee.c && \
     ./autogen.sh --enable-sqlite --enable-shmem --with-config-file=/home/nethack/etc/dgamelaunch.conf && \
     make -B && \
     sed -i -e 's|CHROOT="/opt/nethack/nethack.alt.org/"|CHROOT="/home/nethack/"|' -e 's|NHSUBDIR="/nh343/"|NHSUBDIR="/nh367/"|' -e 's|NH_VAR_PLAYGROUND="/nh343/var/"|NH_VAR_PLAYGROUND="/nh367/var/"|' -e 's|#NH_PLAYGROUND_FIXED="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/"|NH_PLAYGROUND_FIXED="/home/nethack-compiled/nh367"|' -e 's|mkdir -p "$CHROOT/dgldir/inprogress-nh343"|mkdir -p "$CHROOT/dgldir/inprogress-nh367"|' -e 's|chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh343"|chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh367"|' -e 's|cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh343"|cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh367"|' -e 's|chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh343|chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh367|' ./dgl-create-chroot && \
@@ -38,7 +39,7 @@ RUN PLATFORM=$( \
     mv -f /nh367/ /home/nethack/ && \
     cd /home/nethack/ && \
     chown -R games:games ./nh367/ && \
-    sed -i -e 's/343/367/g' -e 's|chroot_path = "/opt/nethack/nethack.alt.org/"|chroot_path = "/home/nethack/"|' -e 's|"$SERVERID" = "$ATTR(14)nethack.alt.org - http://nethack.alt.org/$ATTR()"|"$SERVERID" = "$ATTR(14)4nm1tsu.com$ATTR()"|' -e 's|# menu_max_idle_time = 1024|menu_max_idle_time = 1024|' -e 's|game_name = "NetHack 3.4.3"|game_name = "NetHack 3.6.7"|' ./etc/dgamelaunch.conf && \
+    sed -i -e 's/343/367/g' -e 's|chroot_path = "/opt/nethack/nethack.alt.org/"|chroot_path = "/home/nethack/"|' -e 's|"$SERVERID" = "$ATTR(14)nethack.alt.org - http://nethack.alt.org/$ATTR()"|"$SERVERID" = "$ATTR(14)***.com$ATTR()"|' -e 's|# menu_max_idle_time = 1024|menu_max_idle_time = 1024|' -e 's|game_name = "NetHack 3.4.3"|game_name = "NetHack 3.6.7"|' ./etc/dgamelaunch.conf && \
     (cp /lib/${PLATFORM}-linux-gnu/libncursesw.so.6 lib || cp /lib/${PLATFORM}-linux-gnu/libncurses.so.6 lib || true) && \
     (echo "service telnet" && \
         echo "{" && \
