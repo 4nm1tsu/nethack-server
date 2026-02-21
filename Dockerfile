@@ -40,8 +40,9 @@ RUN PLATFORM=$( \
     cd /home/nethack/ && \
     chown -R games:games ./nh367/ && \
     sed -i -e 's/343/367/g' -e 's|chroot_path = "/opt/nethack/nethack.alt.org/"|chroot_path = "/home/nethack/"|' -e 's|"$SERVERID" = "$ATTR(14)nethack.alt.org - http://nethack.alt.org/$ATTR()"|"$SERVERID" = "$ATTR(14)***.com$ATTR()"|' -e 's|# menu_max_idle_time = 1024|menu_max_idle_time = 1024|' -e 's|game_name = "NetHack 3.4.3"|game_name = "NetHack 3.6.7"|' ./etc/dgamelaunch.conf && \
-    (cp /lib/${PLATFORM}-linux-gnu/libncursesw.so.6 lib || cp /lib/${PLATFORM}-linux-gnu/libncurses.so.6 lib || true) && \
-    (cd lib && [ -f libncursesw.so.6 ] && ln -s libncursesw.so.6 libncurses.so.6 || true) && \
+    NCURSES_LIB=$(ldd nh367/nethack | awk '/libncurses/ {print $3; exit}') && \
+    if [ -n "$NCURSES_LIB" ] && [ -f "$NCURSES_LIB" ]; then cp "$NCURSES_LIB" lib/; fi && \
+    (cd lib && [ -f libncursesw.so.6 ] && [ ! -e libncurses.so.6 ] && ln -s libncursesw.so.6 libncurses.so.6 || true) && \
     (echo "service telnet" && \
         echo "{" && \
         echo "  socket_type = stream" && \
