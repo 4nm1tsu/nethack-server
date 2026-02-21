@@ -5,7 +5,8 @@ ARG TARGETPLATFORM
 # 必要なパッケージをインストール
 RUN apt-get update && apt-get install -y \
     wget build-essential bison flex libncurses-dev gzip nkf groff git autogen autoconf automake \
-    libsqlite3-dev sqlite3 xinetd telnetd-ssl bsdmainutils
+    libsqlite3-dev sqlite3 xinetd telnetd-ssl bsdmainutils openssh-server && \
+    rm -rf /var/lib/apt/lists/*
 
 # NetHackのダウンロードと設定
 RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
@@ -20,7 +21,6 @@ RUN wget https://www.nethack.org/download/3.6.7/nethack-367-src.tgz && \
     make install
 
 # dgamelaunchのセットアップ
-
 RUN PLATFORM=$( \
       case ${TARGETPLATFORM} in \
         linux/amd64 ) echo "x86_64";; \
@@ -54,9 +54,38 @@ RUN PLATFORM=$( \
         echo "  rlimit_cpu  = 120" && \
         echo "}") > /etc/xinetd.d/dgl
 
+# SSH サーバー設定
+RUN set -eux; \
+    mkdir -p /var/run/sshd /home/nethack/.ssh /usr/games; \
+    if ! id nethack >/dev/null 2>&1; then useradd -d /home/nethack -s /bin/bash nethack; fi; \
+    chown -R nethack:nethack /home/nethack/.ssh; \
+    ln -sf /home/nethack/dgamelaunch /usr/games/dgamelaunch; \
+    chown root:root /home/nethack/dgamelaunch; \
+    chmod 4755 /home/nethack/dgamelaunch; \
+    passwd -d nethack || true; \
+    cat >/etc/ssh/sshd_config <<'EOF'
+PermitRootLogin no
+PubkeyAuthentication no
+PasswordAuthentication yes
+ChallengeResponseAuthentication no
+UsePAM no
+PermitEmptyPasswords yes
+PrintMotd no
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+Match User nethack
+    ForceCommand /usr/games/dgamelaunch
+    PermitTTY yes
+    X11Forwarding no
+    AllowTcpForwarding no
+    PermitTunnel no
+    GatewayPorts no
+EOF
+RUN ssh-keygen -A
+
 # dgamelaunchのユーザーメニューのバージョンを変更
 RUN sed -i 's|p) Play NetHack 3.4.3|p) Play NetHack 3.6.7|' /home/nethack/dgl_menu_main_user.txt
 
-EXPOSE 23
+EXPOSE 22
 
-CMD ["xinetd", "-dontfork"]
+CMD ["/usr/sbin/sshd", "-D"]
